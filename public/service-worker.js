@@ -1,5 +1,5 @@
-const FILE_CACHE_NAME = "budget-tracker-file-cache-v1";
-const DATA_CACHE_NAME = "budget-tracker-data-cache-v1";
+const FILE_CACHE = "budget-tracker-file-cache-v1";
+const DATA_CACHE = "budget-tracker-data-cache-v1";
 
 const FILES_TO_CACHE = [
   "/",
@@ -18,11 +18,10 @@ const FILES_TO_CACHE = [
   "/icons/icon-512x512.png",
 ];
 
-// Install the service worker
 self.addEventListener("install", function (evt) {
   evt.waitUntil(
-    caches.open(FILE_CACHE_NAME).then((cache) => {
-      console.log("Your files were pre-cached successfully!");
+    caches.open(FILE_CACHE).then((cache) => {
+      console.log("Files successfuly pre-cached!");
       return cache.addAll(FILES_TO_CACHE);
     })
   );
@@ -30,14 +29,13 @@ self.addEventListener("install", function (evt) {
   self.skipWaiting();
 });
 
-// Activate the service worker and remove old data from the cache
 self.addEventListener("activate", function (evt) {
   evt.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
-          if (key !== FILE_CACHE_NAME && key !== DATA_CACHE_NAME) {
-            console.log("Removing old cache data", key);
+          if (key !== FILE_CACHE && key !== DATA_CACHE) {
+            console.log("Getting rid of old cached data", key);
             return caches.delete(key);
           }
         })
@@ -48,16 +46,14 @@ self.addEventListener("activate", function (evt) {
   self.clients.claim();
 });
 
-// Intercept fetch requests
 self.addEventListener("fetch", function (evt) {
   if (evt.request.url.includes("/api/")) {
     evt.respondWith(
       caches
-        .open(DATA_CACHE_NAME)
+        .open(DATA_CACHE)
         .then((cache) => {
           return fetch(evt.request)
             .then((response) => {
-              // If the response was good, clone it and store it in the cache.
               if (response.status === 200) {
                 cache.put(evt.request.url, response.clone());
               }
@@ -65,7 +61,6 @@ self.addEventListener("fetch", function (evt) {
               return response;
             })
             .catch(() => {
-              // Network request failed, try to get it from the cache.
               return cache.match(evt.request);
             });
         })
@@ -81,7 +76,6 @@ self.addEventListener("fetch", function (evt) {
         if (response) {
           return response;
         } else if (evt.request.headers.get("accept").includes("text/html")) {
-          // return the cached home page for all requests for html pages
           return caches.match("/");
         }
       });

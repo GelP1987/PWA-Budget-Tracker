@@ -7,7 +7,7 @@ const indexedDB =
   window.msIndexedDB ||
   window.shimIndexedDB;
 
-let db;
+let database;
 const request = indexedDB.open("budget-tracker", 1);
 
 request.onsuccess = ({ target }) => {
@@ -15,21 +15,21 @@ request.onsuccess = ({ target }) => {
 };
 
 request.onupgradeneeded = (event) => {
-  const db = event.target.result;
-  db.createObjectStore("pending", { autoIncrement: true });
+  const database = event.target.result;
+  database.createObjectStore("savedData", { autoIncrement: true });
 };
 
-function saveRecord(record) {
-  const transaction = db.transaction(["pending"], "readwrite");
-  const store = transaction.objectStore("pending");
+function saveRecord(savesRecord) {
+  const transaction = database.transaction(["savedData"], "readwrite");
+  const store = transaction.objectStore("savedData");
 
-  console.log("in saveRecord", record);
-  store.add(record);
+  console.log("in saveRecord", savesRecord);
+  store.add(savesRecord);
 }
 
 function checkDB() {
-  const transaction = db.transaction(["pending"], "readwrite");
-  const store = transaction.objectStore("pending");
+  const transaction = database.transaction(["savedData"], "readwrite");
+  const store = transaction.objectStore("savedData");
   const allRecords = store.getAll();
 
   allRecords.onsuccess = () => {
@@ -44,8 +44,8 @@ function checkDB() {
       })
         .then((response) => response.json())
         .then(() => {
-          const transaction = db.transaction(["pending"], "readwrite");
-          const store = transaction.objectStore("pending");
+          const transaction = database.transaction(["savedData"], "readwrite");
+          const store = transaction.objectStore("savedData");
           store.clear();
         });
     }
