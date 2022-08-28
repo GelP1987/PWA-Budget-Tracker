@@ -1,4 +1,4 @@
-console.log("Loading idb.js");
+console.log("Loading idb.js here");
 
 const indexedDB =
   window.indexedDB ||
@@ -11,7 +11,7 @@ let database;
 const request = indexedDB.open("budget-tracker", 1);
 
 request.onsuccess = ({ target }) => {
-  db = target.result;
+  database = target.result;
 };
 
 request.onupgradeneeded = (event) => {
@@ -19,12 +19,12 @@ request.onupgradeneeded = (event) => {
   database.createObjectStore("savedData", { autoIncrement: true });
 };
 
-function saveRecord(savesRecord) {
+function saveRecord(savedRecord) {
   const transaction = database.transaction(["savedData"], "readwrite");
   const store = transaction.objectStore("savedData");
 
-  console.log("in saveRecord", savesRecord);
-  store.add(savesRecord);
+  console.log("Saved in saveRecord: ", savedRecord);
+  store.add(savedRecord);
 }
 
 function checkDB() {

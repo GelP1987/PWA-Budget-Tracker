@@ -112,7 +112,7 @@ function sendTransaction(isAdding) {
     })
     .then((data) => {
       if (data.errors) {
-        errorEl.textContent = "Missing Information";
+        errorEl.textContent = "Informtion Missing";
       } else {
         nameEl.value = "";
         amountEl.value = "";
